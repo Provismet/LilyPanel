@@ -2,7 +2,7 @@
 A simple Python GUI that sends VMC data to make toggles easier in [Inochi Session](https://github.com/Inochi2D/inochi-session). Should be compatible with any VMC application, but this program is tailored for Inochi Session.
 
 ## License
-All *source-code* is licensed BSD-2.
+All *source-code* (does not include assets) is licensed BSD-2.
 
 ## Executing from Source
 If you want to execute the program from the Python source, you will need to install the `pythonosc` library. This can be done through the console command:  
