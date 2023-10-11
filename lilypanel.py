@@ -1,8 +1,9 @@
+# Provismet, 2023
+
 from vmc_impl import ToggleBlend, SliderBlend, AbstractBlend, createBlendApplyMessage
 
 from pythonosc import udp_client, osc_bundle_builder
 import tkinter as tk
-from tkinter import ttk
 from threading import Thread, Event
 import json, subprocess, os, platform, webbrowser
 
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     optionsButtonColourHover = "#202020"
     textColour = "#F6F6F6"
 
-    file = open("lilypanel.json", "r")
+    file = open("./lilypanel.json", "r")
     panelData = json.load(file)
     file.close()
 
