@@ -1,0 +1,72 @@
+{
+    "ip": "127.0.0.1",
+    "port": 39540,
+    "layout": {
+        "buttons": {
+            "columns": 2,
+            "xPadding": 3,
+            "yPadding": 1
+        },
+        "sliders": {
+            "columns": 2,
+            "xPadding": 3,
+            "yPadding": 1,
+            "orientation": "vertical"
+        },
+        "xPadding": 20,
+        "yPadding": 5
+    },
+    "blends": [
+        {
+            "name": "Example1",
+            "type": "toggle",
+            "offValue": 0,
+            "onValue": 1
+        },
+        {
+            "name": "Example2",
+            "type": "slider",
+            "minValue": 0.0,
+            "maxValue": 1.0,
+            "step": 0.05
+        },
+        {
+            "name": "Example3",
+            "type": "toggle",
+            "offValue": -1.0,
+            "onValue": 1.0
+        },
+        {
+            "name": "Example4",
+            "type": "toggle",
+            "offValue": -1.0,
+            "onValue": 1.0
+        },
+        {
+            "name": "Example5",
+            "type": "toggle",
+            "offValue": -1.0,
+            "onValue": 1.0
+        },
+        {
+            "name": "Example6",
+            "type": "toggle",
+            "offValue": -1.0,
+            "onValue": 1.0
+        },
+        {
+            "name": "Example7",
+            "type": "slider",
+            "minValue": 0.0,
+            "maxValue": 1.0,
+            "step": 0.01
+        },
+        {
+            "name": "Example8",
+            "type": "slider",
+            "minValue": -1.0,
+            "maxValue": 1.0,
+            "step": 0.5
+        }
+    ]
+}
