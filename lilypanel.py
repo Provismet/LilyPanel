@@ -4,8 +4,7 @@ from pythonosc import udp_client, osc_bundle_builder
 import tkinter as tk
 from tkinter import ttk
 from threading import Thread, Event
-import json
-import subprocess, os, platform
+import json, subprocess, os, platform, webbrowser
 
 class AbstractVMCFrame (tk.Frame):
     def __init__(self, blend: AbstractBlend, *args, **kwargs):
@@ -21,13 +20,17 @@ class AbstractVMCFrame (tk.Frame):
 
 class ToggleFrame (AbstractVMCFrame):
     def __init__ (self, blend: ToggleBlend, *args, **kwargs):
+        self.hoverBg = kwargs.pop("hoverBg")
         super().__init__(blend, *args, **kwargs)
 
         self.on_image = tk.PhotoImage(file="assets/on_button.png")
         self.off_image = tk.PhotoImage(file="assets/off_button.png")
 
+        self.bg = kwargs["bg"]
         self.label = tk.Label(self, text=self.blendManager.title, bg=kwargs["bg"], font=self.defaultFont, fg="#F6F6F6")
         self.button = tk.Button(master=self, image=self.off_image, command=self.toggle, bg=kwargs["bg"], relief=tk.FLAT, activebackground=kwargs["bg"])
+        self.button.bind("<Enter>", self.onEnter)
+        self.button.bind("<Leave>", self.onExit)
         
         self.label.pack(side=tk.TOP)
         self.button.pack(side=tk.BOTTOM)
@@ -38,6 +41,12 @@ class ToggleFrame (AbstractVMCFrame):
             self.button.config(image=self.on_image)
         else:
             self.button.config(image=self.off_image)
+    
+    def onEnter (self, event):
+        self.button.configure(bg=self.hoverBg, activebackground=self.hoverBg)
+    
+    def onExit (self, event):
+        self.button.configure(bg=self.bg, activebackground=self.bg)
 
 
 class SliderFrame (AbstractVMCFrame):
@@ -47,7 +56,7 @@ class SliderFrame (AbstractVMCFrame):
         self.value = tk.DoubleVar()
 
         self.label = tk.Label(self, text=self.blendManager.title, bg=kwargs["bg"], font=self.defaultFont, fg="#F6F6F6")
-        self.slider = tk.Scale(self, variable=self.value, from_=self.blendManager.minValue, to=self.blendManager.maxValue, resolution=self.blendManager.step, orient=orientation, bg=kwargs["bg"], fg="#F6F6F6")
+        self.slider = tk.Scale(self, variable=self.value, from_=self.blendManager.minValue, to=self.blendManager.maxValue, resolution=self.blendManager.step, orient=orientation, bg=kwargs["bg"], fg="#F6F6F6", bd=5, activebackground="#353535", sliderrelief=tk.FLAT, troughcolor="#909090")
         self.slider.set(self.blendManager.minValue)
         
         self.label.pack(side=tk.TOP)
@@ -56,6 +65,20 @@ class SliderFrame (AbstractVMCFrame):
     def getMessage(self):
         self.blendManager.set(self.value.get())
         return super().getMessage()
+
+class HoverButton (tk.Button):
+    def __init__ (self, *args, **kwargs):
+        self.hoverBg = kwargs.pop("hoverBg")
+        self.standardBg = kwargs["bg"]
+        super().__init__(*args, **kwargs)
+        self.bind("<Enter>", self.onEnter)
+        self.bind("<Leave>", self.onExit)
+    
+    def onEnter (self, event):
+        self.configure(bg=self.hoverBg, activebackground=self.hoverBg)
+    
+    def onExit (self, event):
+        self.configure(bg=self.standardBg, activebackground=self.standardBg)
 
 def main ():
     while True:
@@ -88,12 +111,18 @@ def openOptionsFile ():
     else:                                   # linux variants
         subprocess.call(('xdg-open', filepath))
 
+def openGithub ():
+    webbrowser.open_new_tab("https://github.com/Provismet/LilyPanel")
+
 frameList: list[AbstractVMCFrame] = []
 stopThread = Event()
 
 if __name__ == "__main__":
     controlFrameColour = "#505050"
     optionsFrameColour = "#353535"
+    optionsButtonColour = "#353535"
+    optionsButtonColourHover = "#202020"
+    textColour = "#F6F6F6"
 
     file = open("lilypanel.json", "r")
     panelData = json.load(file)
@@ -111,8 +140,9 @@ if __name__ == "__main__":
     optionsFrame.pack(side=tk.TOP, fill=tk.X)
     
     shouldStayOnTop = tk.BooleanVar()
-    tk.Checkbutton(optionsFrame, text="Stay On Top", command=setStayOnTop, onvalue=True, offvalue=False, variable=shouldStayOnTop, bg=optionsFrameColour, activeforeground="#F6F6F6", activebackground=optionsFrameColour, fg="#F6F6F6", selectcolor=optionsFrameColour).pack(side=tk.LEFT)
-    tk.Button(optionsFrame, text="Open Settings", command=openOptionsFile).pack(side=tk.RIGHT)
+    tk.Checkbutton(optionsFrame, text="Stay On Top", command=setStayOnTop, onvalue=True, offvalue=False, variable=shouldStayOnTop, bg=optionsFrameColour, activeforeground=textColour, activebackground=optionsFrameColour, fg=textColour, selectcolor=optionsButtonColour).pack(side=tk.LEFT)
+    HoverButton(optionsFrame, text="Settings", command=openOptionsFile, bg=optionsButtonColour, activebackground=optionsButtonColour, hoverBg=optionsButtonColourHover, fg=textColour, activeforeground=textColour, relief=tk.FLAT).pack(side=tk.RIGHT)
+    HoverButton(optionsFrame, text="GitHub", command=openGithub, bg=optionsButtonColour, activebackground=optionsButtonColour, hoverBg=optionsButtonColourHover, fg=textColour, activeforeground=textColour, relief=tk.FLAT).pack(side=tk.RIGHT)
     
     controlFrame = tk.Frame(root, bg=controlFrameColour)
     controlFrame.pack(side=tk.BOTTOM, fill=tk.BOTH)
@@ -121,11 +151,8 @@ if __name__ == "__main__":
     toggleGrid = tk.Frame(controlFrame, bg=controlFrameColour)
     toggleGrid.grid(row=0, column=0, padx=panelData["layout"]["xPadding"], pady=panelData["layout"]["yPadding"], sticky=tk.W)
 
-    sep = ttk.Separator(controlFrame, orient=tk.VERTICAL)
-    sep.grid(row=0, column=1, sticky="ns")
-
     sliderGrid = tk.Frame(controlFrame, bg=controlFrameColour)
-    sliderGrid.grid(row=0, column=2, padx=panelData["layout"]["xPadding"], pady=panelData["layout"]["yPadding"], sticky=tk.E)
+    sliderGrid.grid(row=0, column=1, padx=panelData["layout"]["xPadding"], pady=panelData["layout"]["yPadding"], sticky=tk.E)
 
     currentButtonColumn = 0
     currentButtonRow = 0
@@ -137,7 +164,7 @@ if __name__ == "__main__":
 
     for newBlend in panelData["blends"]:
         if newBlend["type"] == "toggle":
-            newFrame = ToggleFrame(blend=ToggleBlend(newBlend["name"], float(newBlend["offValue"]), float(newBlend["onValue"])), master=toggleGrid, bg=controlFrameColour)
+            newFrame = ToggleFrame(blend=ToggleBlend(newBlend["name"], float(newBlend["offValue"]), float(newBlend["onValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=optionsButtonColour)
             frameList.append(newFrame)
             newFrame.grid(row=currentButtonRow, column=currentButtonColumn, padx=buttonLayout["xPadding"], pady=buttonLayout["yPadding"])
             
