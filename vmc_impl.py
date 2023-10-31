@@ -57,7 +57,7 @@ class DurationBlend (AbstractBlend):
 
         self.index = 0
         self.values = []
-        self.offValue = offValue
+        self.offValue = float(offValue)
 
         for i in range(len(pairs)):
             currentCheckpoint = pairs[i-1]
@@ -89,6 +89,9 @@ class DurationBlend (AbstractBlend):
             self.index = -1
             return False
         return True
+    
+    def getMessage (self) -> osc_message.OscMessage:
+        return self.createBlendShapeMessage(self.get())
 
 def createBlendApplyMessage ():
     message = osc_message_builder.OscMessageBuilder(address="/VMC/Ext/Blend/Apply")
