@@ -15,7 +15,16 @@
             "orientation": "vertical"
         },
         "xPadding": 20,
-        "yPadding": 5
+        "yPadding": 5,
+        "colour": {
+            "controlFrame": "#505050",
+            "controlButtonHover": "#353535",
+            "optionsFrame": "#353535",
+            "optionsButtonHover": "#202020",
+            "text": "#F6F6F6",
+            "durationLine": "#000000",
+            "sliderTrough": "#909090"
+        }
     },
     "blends": [
         {
@@ -35,14 +44,14 @@
             "type": "slider",
             "minValue": -1,
             "maxValue": 1,
-            "step": 0.25
+            "step": 0.5
         },
         {
             "name": "Example4",
             "type": "slider",
             "minValue": 0,
             "maxValue": 5,
-            "step": 0.5
+            "step": 0.1
         },
         {
             "name": "Example5",
@@ -51,7 +60,7 @@
             "checkpoints": {
                 "10": 0.25,
                 "15": -1,
-                "12": 0.5,
+                "17": 0.5,
                 "20": 0.5
             }
         },
