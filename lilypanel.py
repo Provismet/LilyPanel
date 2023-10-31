@@ -1,11 +1,13 @@
 # Provismet, 2023
 
-from vmc_impl import ToggleBlend, SliderBlend, AbstractBlend, createBlendApplyMessage
+from vmc_impl import ToggleBlend, SliderBlend, DurationBlend, AbstractBlend, createBlendApplyMessage
 
 from pythonosc import udp_client, osc_bundle_builder
 import tkinter as tk
 from threading import Thread, Event
 import json, subprocess, os, platform, webbrowser
+from PIL import ImageTk, Image
+from time import time
 
 class AbstractVMCFrame (tk.Frame):
     def __init__(self, blend: AbstractBlend, *args, **kwargs):
@@ -49,6 +51,75 @@ class ToggleFrame (AbstractVMCFrame):
     def onExit (self, event):
         self.button.configure(bg=self.bg, activebackground=self.bg)
 
+class DurationFrame (AbstractVMCFrame):
+    def __init__ (self, blend: DurationBlend, *args, **kwargs):
+        self.hoverBg = kwargs.pop("hoverBg")
+        super().__init__(blend, *args, **kwargs)
+
+        self.bg = kwargs["bg"]
+        self.label = tk.Label(self, text=self.blendManager.title, bg=kwargs["bg"], font=self.defaultFont, fg="#F6F6F6")
+
+        self.swirl = [tk.PhotoImage(file="assets/timer_%i.png" % i) for i in range(1,25)]
+        self.swirlOff = tk.PhotoImage(file="assets/timer_off.png")
+        self.swirlPos = 0
+        self.active = False
+
+        self.canvas = tk.Canvas(master=self, width=56, height=56, bg=self.bg, bd=0, highlightthickness=0)
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.swirlOff)
+        self.canvas.bind("<Enter>", self.onEnter)
+        self.canvas.bind("<Leave>", self.onExit)
+        self.canvas.bind("<Button-1>", self.start)
+
+        self.label.pack(side=tk.TOP)
+        self.canvas.pack(side=tk.BOTTOM)
+
+        self.after(100, self.canvasAfter)
+    
+    def start (self, event):
+        self.active = True
+        self.blendManager.index = 0
+
+    def stop (self):
+        self.active = False
+        self.swirlPos = 0
+        self.canvas.delete("all")
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.swirlOff)
+    
+    def onEnter (self, event):
+        self.canvas.configure(bg=self.hoverBg)
+    
+    def onExit (self, event):
+        self.canvas.configure(bg=self.bg)
+
+    def canvasAfter (self):
+        if self.active:
+            self.canvas.delete("all")
+
+            self.swirlPos += 1
+            if self.swirlPos >= len(self.swirl):
+                self.swirlPos = 0
+            
+            self.canvas.create_image(0, 0, anchor=tk.NW, image=self.swirl[self.swirlPos])
+            self.canvas.create_line(0, 0, self.lineEnd(0, 0.25), 0, fill="#7E0EB4", width=4)
+            self.canvas.create_line(56, 0, 56, self.lineEnd(0.25, 0.5), fill="#7E0EB4", width=4)
+            self.canvas.create_line(56, 56, 56 - self.lineEnd(0.5, 0.75), 56, fill="#7E0EB4", width=4)
+            self.canvas.create_line(0, 56, 0, 56 - self.lineEnd(0.75, 1), fill="#7E0EB4", width=4)
+
+            if not self.blendManager.step():
+                self.stop()
+        self.after(100, self.canvasAfter)
+            
+    def lineEnd (self, minValue:float, maxValue:float) -> int:
+        progress = self.blendManager.index / len(self.blendManager.values)
+        
+        if progress <= minValue:
+            return 0
+        elif progress >= maxValue:
+            return 56
+        else:
+            progress -= minValue
+            maxValue -= minValue
+            return int(56 * (progress / maxValue))
 
 class SliderFrame (AbstractVMCFrame):
     def __init__ (self, blend: SliderBlend, orientation:str, *args, **kwargs):
@@ -135,7 +206,7 @@ if __name__ == "__main__":
     root.title("LilyPanel")
     root.protocol("WM_DELETE_WINDOW", onClose)
     root.resizable(False, False)
-    root.iconbitmap("assets/icon.ico")
+    root.wm_iconphoto(False, ImageTk.PhotoImage(Image.open("assets/icon.png")))
 
     optionsFrame = tk.Frame(root, bg=optionsFrameColour)
     optionsFrame.pack(side=tk.TOP, fill=tk.X)
@@ -166,6 +237,15 @@ if __name__ == "__main__":
     for newBlend in panelData["blends"]:
         if newBlend["type"] == "toggle":
             newFrame = ToggleFrame(blend=ToggleBlend(newBlend["name"], float(newBlend["offValue"]), float(newBlend["onValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=optionsButtonColour)
+            frameList.append(newFrame)
+            newFrame.grid(row=currentButtonRow, column=currentButtonColumn, padx=buttonLayout["xPadding"], pady=buttonLayout["yPadding"])
+            
+            currentButtonColumn += 1
+            if currentButtonColumn == buttonLayout["columns"]:
+                currentButtonColumn = 0
+                currentButtonRow += 1
+        elif newBlend["type"] == "duration":
+            newFrame = DurationFrame(blend=DurationBlend(newBlend["name"], dict(newBlend["checkpoints"]), float(newBlend["defaultValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=optionsButtonColour)
             frameList.append(newFrame)
             newFrame.grid(row=currentButtonRow, column=currentButtonColumn, padx=buttonLayout["xPadding"], pady=buttonLayout["yPadding"])
             
