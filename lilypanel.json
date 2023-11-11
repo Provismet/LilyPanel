@@ -57,6 +57,7 @@
             "name": "Example5",
             "type": "duration",
             "defaultValue": 0,
+            "interval": 50,
             "checkpoints": {
                 "10": 0.25,
                 "15": -1,
@@ -68,6 +69,7 @@
             "name": "Example6",
             "type": "duration",
             "defaultValue": 0,
+            "interval": 50,
             "checkpoints": {
                 "0": 0,
                 "5": 0.5,

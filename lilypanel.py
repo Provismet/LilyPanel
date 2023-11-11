@@ -59,6 +59,7 @@ class DurationFrame (AbstractVMCFrame):
         self.hoverBg = kwargs.pop("hoverBg")
         self.fg = kwargs.pop("fg")
         self.lineColour = kwargs.pop("lineColour")
+        self.interval = kwargs.pop("interval")
         super().__init__(blend, *args, **kwargs)
 
         self.bg = kwargs["bg"]
@@ -78,8 +79,7 @@ class DurationFrame (AbstractVMCFrame):
         self.label.pack(side=tk.TOP)
         self.canvas.pack(side=tk.BOTTOM)
 
-        self.delay = 50
-        self.after(self.delay, self.canvasAfter)
+        self.after(self.interval, self.canvasAfter)
     
     def start (self, event):
         self.active = True
@@ -113,7 +113,7 @@ class DurationFrame (AbstractVMCFrame):
 
             if not self.blendManager.step():
                 self.stop()
-        self.after(self.delay, self.canvasAfter)
+        self.after(self.interval, self.canvasAfter)
             
     def lineEnd (self, minValue:float, maxValue:float) -> int:
         progress = self.blendManager.index / len(self.blendManager.values)
@@ -268,7 +268,7 @@ if __name__ == "__main__":
                 currentButtonColumn = 0
                 currentButtonRow += 1
         elif newBlend["type"] == "duration":
-            newFrame = DurationFrame(blend=DurationBlend(newBlend["name"], dict(newBlend["checkpoints"]), float(newBlend["defaultValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=controlFrameColourHover, fg=textColour, lineColour=durationLineColour)
+            newFrame = DurationFrame(blend=DurationBlend(newBlend["name"], dict(newBlend["checkpoints"]), float(newBlend["defaultValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=controlFrameColourHover, fg=textColour, lineColour=durationLineColour, interval=int(newBlend["interval"]))
             frameList.append(newFrame)
             newFrame.grid(row=currentButtonRow, column=currentButtonColumn, padx=buttonLayout["xPadding"], pady=buttonLayout["yPadding"])
             
