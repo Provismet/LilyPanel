@@ -24,7 +24,7 @@ To change either of these, find the `ip` and `port` fields at the top of the set
     "port": 39540
 }
 ```
-The ip must be enclosed in "quotes" or 'apostrophies'.  
+The ip must be enclosed in "quotes" or 'apostrophes'.  
 The port must be an integer.
 
 #### Inochi Session
@@ -72,7 +72,7 @@ Values may be integers or contain decimals.
 To add a toggle:
 ```json
 {
-    "name": "TheNameOfYourBlendShape"
+    "name": "Name of your blendshape",
     "type": "toggle",
     "offValue": 0,
     "onValue": 1
@@ -86,7 +86,7 @@ Sliders require 5 fields, the slider will default to `"minValue"` value and it w
 To add a slider:
 ```json
 {
-    "name": "TheNameOfYourBlendShape"
+    "name": "Name of your blendshape",
     "type": "slider",
     "step": 0.5,
     "minValue": 0,
@@ -94,3 +94,35 @@ To add a slider:
 }
 ```
 This example will create a slider that starts at 0, ends at 1, and only accepts the values: 0, 0.5, 1.
+
+#### Durations
+Durations take up the same section as toggle buttons, they send a sequence of BlendShapes then deactivate. This can be used to play an animation once without looping.
+
+To add a duration:
+```json
+{
+    "name": "Name of your blendshape",
+    "type": "duration",
+    "defaultValue": 0,
+    "interval": 50,
+    "checkpoints": {
+        "5": 0.2,
+        "15": 0.5,
+        "20": 1
+    }
+}
+```
+The default value is the value emitted when the duration is inactive.  
+Durations output a single value each step, the duration of a step (in milliseconds) is the interval.
+
+The checkpoints are the values that must be sent at certain steps. The values fpr steps in-between checkpoints are scaled between the previous checkpoint and the next one.  
+In this example:
+- Output starts at 0.
+- Increases every step, reaching 0.2 at step 5.
+- Slowly increases each step, reaching 0.5 at step 15.
+- Quickly increases, reaching 1 at step 20.
+- Duration ends, instantly resetting back to 0 (the default value).
+
+The example executes 20 steps, each with a duration of 50ms (1 second in total).
+
+It is recommended to look at the examples provided in the settings json in Inochi Session and experiment with this system.
