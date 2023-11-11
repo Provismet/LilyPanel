@@ -5,7 +5,7 @@ from vmc_impl import ToggleBlend, SliderBlend, DurationBlend, AbstractBlend, cre
 from pythonosc import udp_client, osc_bundle_builder
 import tkinter as tk
 from threading import Thread, Event
-import json, subprocess, os, platform, webbrowser
+import json, subprocess, os, platform, webbrowser, sys
 from PIL import ImageTk, Image
 
 class AbstractVMCFrame (tk.Frame):
@@ -26,8 +26,8 @@ class ToggleFrame (AbstractVMCFrame):
         self.fg = kwargs.pop("fg")
         super().__init__(blend, *args, **kwargs)
 
-        self.on_image = tk.PhotoImage(file="assets/on_button.png")
-        self.off_image = tk.PhotoImage(file="assets/off_button.png")
+        self.on_image = tk.PhotoImage(file=resourcePath("assets/on_button.png"))
+        self.off_image = tk.PhotoImage(file=resourcePath("assets/off_button.png"))
 
         self.bg = kwargs["bg"]
         self.label = tk.Label(self, text=self.blendManager.title, bg=kwargs["bg"], font=self.defaultFont, fg=self.fg)
@@ -64,8 +64,8 @@ class DurationFrame (AbstractVMCFrame):
         self.bg = kwargs["bg"]
         self.label = tk.Label(self, text=self.blendManager.title, bg=kwargs["bg"], font=self.defaultFont, fg=self.fg)
 
-        self.swirl = [tk.PhotoImage(file="assets/timer_%i.png" % i) for i in range(1,25)]
-        self.swirlOff = tk.PhotoImage(file="assets/timer_off.png")
+        self.swirl = [tk.PhotoImage(file=resourcePath("assets/timer_%i.png" % i)) for i in range(1,25)]
+        self.swirlOff = tk.PhotoImage(file=resourcePath("assets/timer_off.png"))
         self.swirlPos = 0
         self.active = False
 
@@ -198,6 +198,14 @@ def openOptionsFile (event = None):
 def openGithub (event = None):
     webbrowser.open_new_tab("https://github.com/Provismet/LilyPanel")
 
+def resourcePath (relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 frameList: list[AbstractVMCFrame] = []
 stopThread = Event()
 
@@ -221,7 +229,7 @@ if __name__ == "__main__":
     root.title("LilyPanel")
     root.protocol("WM_DELETE_WINDOW", onClose)
     root.resizable(False, False)
-    root.wm_iconphoto(False, ImageTk.PhotoImage(Image.open("assets/icon.png")))
+    root.wm_iconphoto(False, ImageTk.PhotoImage(Image.open(resourcePath("assets/icon.png"))))
 
     optionsFrame = tk.Frame(root, bg=optionsFrameColour)
     optionsFrame.pack(side=tk.TOP, fill=tk.X)
