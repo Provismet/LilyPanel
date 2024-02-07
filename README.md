@@ -61,7 +61,7 @@ Default:
 
 ### BlendShapes
 An unlimited number of blendshapes can be registered to the program. All blendshapes should be given unique names and not clash with those of other programs.  
-By default, 8 example blendshape are provided. These serve as a guide on how to add your own and should be removed.
+By default, 6 example blendshape are provided. These serve as a guide on how to add your own and should be removed.
 
 All blendshapes should be a json object added to the `"blends"` array.
 
@@ -96,7 +96,7 @@ To add a slider:
 This example will create a slider that starts at 0, ends at 1, and only accepts the values: 0, 0.5, 1.
 
 #### Durations
-Durations take up the same section as toggle buttons, they send a sequence of BlendShapes then deactivate. This can be used to play an animation once without looping.
+Durations take up the same section as toggle buttons, they send a sequence of BlendShapes then deactivate. This can be used to play an animation once without looping or to create specialised toggle with a custom speed.
 
 To add a duration:
 ```json
