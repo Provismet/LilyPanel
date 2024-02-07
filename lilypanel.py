@@ -83,7 +83,7 @@ class DurationFrame (AbstractVMCFrame):
     
     def start (self, event):
         self.active = True
-        self.blendManager.index = 0
+        self.blendManager.start()
 
     def stop (self):
         self.active = False
@@ -268,7 +268,7 @@ if __name__ == "__main__":
                 currentButtonColumn = 0
                 currentButtonRow += 1
         elif newBlend["type"] == "duration":
-            newFrame = DurationFrame(blend=DurationBlend(newBlend["name"], dict(newBlend["checkpoints"]), float(newBlend["defaultValue"])), master=toggleGrid, bg=controlFrameColour, hoverBg=controlFrameColourHover, fg=textColour, lineColour=durationLineColour, interval=int(newBlend["interval"]))
+            newFrame = DurationFrame(blend=DurationBlend(newBlend["name"], dict(newBlend["checkpoints"]), float(newBlend["defaultValue"]), bool(newBlend["sticky"])), master=toggleGrid, bg=controlFrameColour, hoverBg=controlFrameColourHover, fg=textColour, lineColour=durationLineColour, interval=int(newBlend["interval"]))
             frameList.append(newFrame)
             newFrame.grid(row=currentButtonRow, column=currentButtonColumn, padx=buttonLayout["xPadding"], pady=buttonLayout["yPadding"])
             

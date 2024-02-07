@@ -105,6 +105,7 @@ To add a duration:
     "type": "duration",
     "defaultValue": 0,
     "interval": 50,
+    "sticky": false,
     "checkpoints": {
         "5": 0.2,
         "15": 0.5,
@@ -112,8 +113,10 @@ To add a duration:
     }
 }
 ```
-The default value is the value emitted when the duration is inactive.  
+The default value is the value emitted when the duration is inactive. For sticky durations, this is instead the initial value; the start and end checkpoints become the default values in this case.  
 Durations output a single value each step, the duration of a step (in milliseconds) is the interval.
+
+The `sticky` parameter controls how the duration works on repeated use. A sticky duration will play in reverse every other activation. This allows for a "slow toggle" ability.
 
 The checkpoints are the values that must be sent at certain steps. The values fpr steps in-between checkpoints are scaled between the previous checkpoint and the next one.  
 In this example:
@@ -125,4 +128,4 @@ In this example:
 
 The example executes 20 steps, each with a duration of 50ms (1 second in total).
 
-It is recommended to look at the examples provided in the settings json in Inochi Session and experiment with this system.
+Durations are not overly intuitive, and I do recommend experimenting with the examples as well as visualising them in Inochi Session.

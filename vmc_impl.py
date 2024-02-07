@@ -50,14 +50,17 @@ class SliderBlend (AbstractBlend):
         return self.createBlendShapeMessage(self.get())
 
 class DurationBlend (AbstractBlend):
-    def __init__(self, name: str, progression:dict, offValue:float):
+    def __init__(self, name: str, progression:dict, offValue:float, sticky:bool):
         super().__init__(name)
         pairs = [(int(i), float(progression[i])) for i in progression]
         pairs.sort(key=lambda x: x[0])
 
         self.index = 0
         self.values = []
-        self.offValue = float(offValue)
+        self.currentOffValue = float(offValue)
+        self.trueOffValue = float(offValue)
+        self.sticky = bool(sticky)
+        self.reverse = False
 
         for i in range(len(pairs)):
             currentCheckpoint = pairs[i-1]
@@ -78,16 +81,36 @@ class DurationBlend (AbstractBlend):
     
     def get (self) -> float:
         if self.index < 0:
-            return self.offValue
+            return self.currentOffValue
         else:
             return self.values[self.index]
+        
+    def start (self):
+        if self.reverse == False:
+            self.index = 0
+        else:
+            self.index = len(self.values) - 1
     
     def step (self) -> bool:
-        self.index += 1
+        if self.reverse == True:
+            self.index -= 1
+            if self.index < 0:
+                self.currentOffValue = self.values[0]
 
-        if self.index >= len(self.values):
-            self.index = -1
-            return False
+                if self.sticky == True:
+                    self.reverse = False
+
+                return False
+        else:
+            self.index += 1
+            if self.index >= len(self.values):
+                self.index = -1
+
+                if self.sticky == True:
+                    self.reverse = True
+                    self.currentOffValue = self.values[-1]
+
+                return False
         return True
     
     def getMessage (self) -> osc_message.OscMessage:
